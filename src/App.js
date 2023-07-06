@@ -1,25 +1,66 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
-function App() {
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+
+  useEffect(() => {
+    const storedTodos = localStorage.getItem('todos');
+    if (storedTodos) {
+      setTodos(JSON.parse(storedTodos));
+    }
+  }, []);
+
+  const updateLocalStorage = (todos) => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  };
+
+  const handleAddTodo = () => {
+    if (newTodo.trim() !== '') {
+      const updatedTodos = [...todos, newTodo];
+      setTodos(updatedTodos);
+      updateLocalStorage(updatedTodos);
+      setNewTodo('');
+    }
+  };
+
+  const handleUpdateTodo = (index, updatedTodo) => {
+    const updatedTodos = [...todos];
+    updatedTodos[index] = updatedTodo;
+    setTodos(updatedTodos);
+    updateLocalStorage(updatedTodos);
+  };
+
+  const handleDeleteTodo = (index) => {
+    const updatedTodos = todos.filter((_, i) => i !== index);
+    setTodos(updatedTodos);
+    updateLocalStorage(updatedTodos);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <input
+        type="text"
+        value={newTodo}
+        onChange={(e) => setNewTodo(e.target.value)}
+        placeholder="Add new todo"
+      />
+      <button onClick={handleAddTodo}>Add</button>
+      <ul>
+        {todos.map((todo, index) => (
+          <li key={index}>
+            <input
+              type="text"
+              value={todo}
+              onChange={(e) => handleUpdateTodo(index, e.target.value)}
+            />
+            <button onClick={() => handleDeleteTodo(index)}>Delete</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
 
-export default App;
+export default TodoList;
